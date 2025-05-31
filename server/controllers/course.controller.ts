@@ -2,7 +2,7 @@ import { NextFunction, Response, Request } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.service";
+import { createCourse, getAllCoursesService } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
@@ -10,6 +10,7 @@ import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
 import { title } from "process";
+import NotificationModel from "../models/notification.model";
 //upload course
 export const uploadCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -198,6 +199,13 @@ export const addQuestion = CatchAsyncError(
       //add this question to our course content
       courseContent.questions.push(newQuestion);
 
+      //create notification
+      await NotificationModel.create({
+        user: req.user?._id,
+        title: "New Question Received",
+        message: `You have a new question in ${courseContent?.title}`,
+      });
+
       //save the updated course
       await course?.save();
 
@@ -259,6 +267,11 @@ export const addAnswer = CatchAsyncError(
 
       if (req.user?._id === question.user._id) {
         //create a notification
+        await NotificationModel.create({
+          user: req.user?._id,
+          title: "New Question Reply Received",
+          message: `You have a new question reply in ${courseContent?.title}`,
+        });
       } else {
         const data = {
           name: question.user.name,
@@ -388,10 +401,10 @@ export const addReplyToReview = CatchAsyncError(
         comment,
       };
 
-      if(!review.commentReplies){
+      if (!review.commentReplies) {
         review.commentReplies = [];
       }
-      
+
       review.commentReplies.push(replyData);
 
       await course?.save();
@@ -405,3 +418,12 @@ export const addReplyToReview = CatchAsyncError(
     }
   }
 );
+
+//get all courses -- for admins
+export const getAllCoursesAdmin = CatchAsyncError(async(req: Request, res: Response, next: NextFunction) => {
+  try {
+    getAllCoursesService(res);
+  } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+})
