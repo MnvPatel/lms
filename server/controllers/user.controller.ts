@@ -478,7 +478,6 @@ export const updateProfilePicture = CatchAsyncError(
         success: true,
         user,
       });
-
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
