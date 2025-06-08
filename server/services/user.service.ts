@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { redis } from "../utils/redis";
+import redis from "../utils/redis";
 import userModel from "../models/user.model";
 
 //get user by id

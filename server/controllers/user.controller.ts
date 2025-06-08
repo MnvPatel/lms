@@ -12,7 +12,7 @@ import {
   refreshTokenOptions,
   sendToken,
 } from "../utils/jwt";
-import { redis } from "../utils/redis";
+import redis from "../utils/redis";
 import {
   getAllUsersService,
   getUserById,
