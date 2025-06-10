@@ -109,7 +109,7 @@ export const editLayout = CatchAsyncError(async(req: Request, res: Response, nex
         }
         res.status(200).json({
             success: true,
-            message: "Layout created successfully!"
+            message: "Layout edited successfully!"
         })
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 500));

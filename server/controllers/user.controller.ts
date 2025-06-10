@@ -134,7 +134,9 @@ export const activateUser = CatchAsyncError(
       res.status(201).json({
         success: true,
       });
-    } catch (error) {}
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
   }
 );
 

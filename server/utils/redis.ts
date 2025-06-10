@@ -4,8 +4,18 @@ const redisUrl = process.env.REDIS_URL!;
 
 const redis = new Redis(redisUrl, {
   tls: {
-    rejectUnauthorized: false, // ⚠️ Only for dev/testing with rediss://
+    rejectUnauthorized: false, // ⚠️ Keep this false only for development
   },
+  maxRetriesPerRequest: null, // Prevent "MaxRetriesPerRequestError"
+  retryStrategy: (times) => {
+    console.log(`🔁 Redis reconnect attempt #${times}`);
+    if (times > 10) {
+      console.error("❌ Too many Redis reconnect attempts. Giving up.");
+      return null;
+    }
+    return Math.min(times * 500, 3000); // Retry after 0.5s-3s
+  },
+  keepAlive: 30000, // Optional: keep connection alive every 30s
 });
 
 redis.on('connect', () => {
