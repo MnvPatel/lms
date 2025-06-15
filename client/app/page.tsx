@@ -3,6 +3,7 @@
 import React, {FC, useState} from "react"
 import Heading from "./utils/Heading";
 import Header from "./components/Header";
+import Hero from "./components/Route/Hero";
 
 interface Props{}
 
@@ -22,6 +23,7 @@ const Page: FC<Props> = () => {
         setOpen={setOpen}
         activeItem={activeItem}
       />
+      <Hero />
       {/* Add some content to make the page scrollable
       <div className="mt-[100px] h-[2000px]">
         <h1 className="text-center text-3xl">Main Content Area</h1>
