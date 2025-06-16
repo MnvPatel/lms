@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { FC } from 'react'

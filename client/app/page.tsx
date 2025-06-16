@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 'use client'
 
 import React, {FC, useState} from "react"
@@ -10,7 +11,7 @@ interface Props{}
 const Page: FC<Props> = () => {
   const [open, setOpen] = useState(false);
   const [activeItem] = useState(0);
-
+  const [route, setRoute] = useState("Login");
   return (
     <div className="min-h-screen">
       <Heading
@@ -22,6 +23,8 @@ const Page: FC<Props> = () => {
         open={open}
         setOpen={setOpen}
         activeItem={activeItem}
+        setRoute={setRoute}
+        route={route}
       />
       <Hero />
       {/* Add some content to make the page scrollable
