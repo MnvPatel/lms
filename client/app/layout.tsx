@@ -1,8 +1,10 @@
+'use client'
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import { Josefin_Sans } from "next/font/google";
 import { ThemeProvider } from "./utils/theme-provider";
-import {Toaster} from 'react-hot-toast';
+import { Toaster } from "react-hot-toast";
+import { Providers } from "./Provider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -22,14 +24,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${poppins.variable} ${josefin.variable}`}>
-  <body>
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-      {children}
-      <Toaster position='top-center' reverseOrder={false}/>
-    </ThemeProvider>
-  </body>
-</html>
-
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${poppins.variable} ${josefin.variable}`}
+    >
+      <body>
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+            <Toaster position="top-center" reverseOrder={false} />
+          </ThemeProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }
