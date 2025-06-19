@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from "next/link";
 import React, { FC, useState, useEffect } from "react";
 import NavItems from "../utils/NavItems";
@@ -7,18 +8,44 @@ import CustomModal from "../utils/CustomModal";
 import Login from "./Auth/Login";
 import SignUp from "./Auth/SignUp";
 import Verification from "./Auth/Verification";
+import { useSelector } from "react-redux";
+import Image from "next/image";
+import avatar from "../../public/assets/avatar.png";
+import { useSession } from "next-auth/react";
+import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import toast from "react-hot-toast";
 
 type Props = {
   open: boolean;
   setOpen: (open: boolean) => void;
   activeItem: number;
-  setRoute: string;
+  setRoute: (route: string) => void;
   route: string;
 };
 
 const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
   const [active, setActive] = useState(false);
   const [openSideBar, setOpenSidebar] = useState(false);
+  const { user } = useSelector((state: any) => state.auth);
+  const {data} = useSession();
+  const [socialAuth, {isSuccess}] = useSocialAuthMutation();
+
+  useEffect(() => {
+    if(!user){
+      if(data) {
+        socialAuth({
+          email: data?.user?.email,
+          name: data?.user?.name,
+          avatar: data?.user?.image,
+        })
+      }
+      if(isSuccess){
+        toast.success("Login Successfully!")
+      }
+    }
+  }, [data, user, isSuccess, socialAuth])
+  
+  console.log(data);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,10 +61,12 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
   }, []);
 
   const handleClose = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-  if ((e.target as HTMLDivElement).id === "screen") {
-    setOpenSidebar(false);
-  }
-};
+    if ((e.target as HTMLDivElement).id === "screen") {
+      setOpenSidebar(false);
+    }
+  };
+
+  console.log(user);
 
   return (
     <div className="w-full relative">
@@ -69,11 +98,21 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
                   onClick={() => setOpenSidebar(true)}
                 />
               </div>
-              <HiOutlineUserCircle
-                size={25}
-                className="hidden md:block cursor-pointer dark:text-white text-black"
-                onClick={() => setOpen(true)}
-              />
+              {user ? (
+                <Link href={"/profile"}>
+                  <Image
+                    src={user.avatar ? user.avatar : avatar}
+                    alt=""
+                    className="w-[25px] h-[25px] rounded-full cursor-pointer"
+                  />
+                </Link>
+              ) : (
+                <HiOutlineUserCircle
+                  size={25}
+                  className="hidden md:block cursor-pointer dark:text-white text-black"
+                  onClick={() => setOpen(true)}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -91,8 +130,8 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
                 className="cursor-pointer ml-5 my-2 dark:text-white text-black"
                 onClick={() => setOpen(true)}
               />
-              <br/>
-              <br/>
+              <br />
+              <br />
               <p className="text-[16px] px-2 pl-5 text-black dark:text-white">
                 Copyright 2025 ELearning
               </p>
@@ -100,57 +139,45 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
           </div>
         )}
       </div>
-      {
-        route === "Login" && (
-            <>
-              {
-                open && (
-                  <CustomModal
-                    open={open}
-                    setOpen={setOpen}
-                    setRoute={setRoute}
-                    activeItem={activeItem}
-                    component={Login}
-                  />
-                )
-              }
-            </>
-        )
-      }
-      {
-        route === "Sign-Up" && (
-            <>
-              {
-                open && (
-                  <CustomModal
-                    open={open}
-                    setOpen={setOpen}
-                    setRoute={setRoute}
-                    activeItem={activeItem}
-                    component={SignUp}
-                  />
-                )
-              }
-            </>
-        )
-      }
-      {
-        route === "Verification" && (
-            <>
-              {
-                open && (
-                  <CustomModal
-                    open={open}
-                    setOpen={setOpen}
-                    setRoute={setRoute}
-                    activeItem={activeItem}
-                    component={Verification}
-                  />
-                )
-              }
-            </>
-        )
-      }
+      {route === "Login" && (
+        <>
+          {open && (
+            <CustomModal
+              open={open}
+              setOpen={setOpen}
+              setRoute={setRoute}
+              activeItem={activeItem}
+              component={Login}
+            />
+          )}
+        </>
+      )}
+      {route === "Sign-Up" && (
+        <>
+          {open && (
+            <CustomModal
+              open={open}
+              setOpen={setOpen}
+              setRoute={setRoute}
+              activeItem={activeItem}
+              component={SignUp}
+            />
+          )}
+        </>
+      )}
+      {route === "Verification" && (
+        <>
+          {open && (
+            <CustomModal
+              open={open}
+              setOpen={setOpen}
+              setRoute={setRoute}
+              activeItem={activeItem}
+              component={Verification}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };
