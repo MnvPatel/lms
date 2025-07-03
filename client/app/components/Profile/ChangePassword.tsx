@@ -1,8 +1,11 @@
+/* eslint-disable jsx-a11y/role-supports-aria-props */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { styles } from "@/app/styles/styles";
+import { useUpdatePasswordMutation } from "@/redux/features/user/userApi";
+import toast from "react-hot-toast";
 
 type Props = {};
 
@@ -10,8 +13,29 @@ const ChangePassword: FC<Props> = (props) => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [updatePassword, {isSuccess, error}] = useUpdatePasswordMutation();
 
-  const passwordChangeHandler = (e: any) => {};
+
+  const passwordChangeHandler = async (e: any) => {
+    e.preventDefault();
+    if(newPassword !== confirmPassword){
+      toast.error("Passwords do not match!")
+    } else {
+      await updatePassword({oldPassword, newPassword});
+    }
+  };
+
+  useEffect(() => {
+    if(isSuccess){
+      toast.success("Passwords changed successfully!")
+    }
+    if(error){
+      if("data" in error){
+        const errorData = error as any;
+        toast.error(errorData.data.message);
+      }
+    }
+  }, [isSuccess, error]);
 
   return (
     <div className="w-full pl-7 px-2 800px:px-5 800px:pl-0">
