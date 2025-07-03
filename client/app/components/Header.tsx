@@ -1,4 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import React, { FC, useState, useEffect } from "react";
 import NavItems from "../utils/NavItems";
@@ -8,12 +9,15 @@ import CustomModal from "../utils/CustomModal";
 import Login from "./Auth/Login";
 import SignUp from "./Auth/SignUp";
 import Verification from "./Auth/Verification";
-import { useSelector } from "react-redux";
-import Image from "next/image";
 import avatar from "../../public/assets/avatar.png";
 import { useSession } from "next-auth/react";
-import { useSocialAuthMutation } from "@/redux/features/auth/authApi";
+import {
+  useLogOutQuery,
+  useSocialAuthMutation,
+} from "@/redux/features/auth/authApi";
 import toast from "react-hot-toast";
+import Image from "next/image";
+import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 
 type Props = {
   open: boolean;
@@ -26,25 +30,39 @@ type Props = {
 const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
   const [active, setActive] = useState(false);
   const [openSideBar, setOpenSidebar] = useState(false);
-  const { user } = useSelector((state: any) => state.auth);
-  const {data} = useSession();
-  const [socialAuth, {isSuccess}] = useSocialAuthMutation();
+  const {data: userData, isLoading, refetch} = useLoadUserQuery(undefined, {});
+  // const { user } = useSelector((state: any) => state.auth);
+  const { data } = useSession();
+  const [socialAuth, { isSuccess }] = useSocialAuthMutation();
+  const [logout, setLogout] = useState(false);
+  const {} = useLogOutQuery(undefined, {
+    skip: !logout ? true : false,
+  });
 
   useEffect(() => {
-    if(!user){
-      if(data) {
+    if(!isLoading){
+      if (!userData) {
+      if (data) {
         socialAuth({
           email: data?.user?.email,
           name: data?.user?.name,
           avatar: data?.user?.image,
-        })
+        });
+        refetch();
       }
-      if(isSuccess){
-        toast.success("Login Successfully!")
+      }
+      if (data === null) {
+        if (isSuccess) {
+          toast.success("Login Successfully!");
+        }
+      }
+      if (data === null && !isLoading && !userData) {
+        setLogout(true);
       }
     }
-  }, [data, user, isSuccess, socialAuth])
-  
+    
+  }, [data, userData, isSuccess, socialAuth, isLoading, refetch]);
+
   console.log(data);
 
   useEffect(() => {
@@ -66,7 +84,7 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
     }
   };
 
-  console.log(user);
+  // console.log(user);
 
   return (
     <div className="w-full relative">
@@ -98,12 +116,15 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
                   onClick={() => setOpenSidebar(true)}
                 />
               </div>
-              {user ? (
+              {userData ? (
                 <Link href={"/profile"}>
                   <Image
-                    src={user.avatar ? user.avatar : avatar}
+                    src={userData?.user.avatar ? userData.user.avatar.url : avatar}
                     alt=""
+                    width={30}
+                    height={30}
                     className="w-[25px] h-[25px] rounded-full cursor-pointer"
+                    style={{border: activeItem === 5 ? "2px solid #37a39a" : "none"}}
                   />
                 </Link>
               ) : (
@@ -148,6 +169,7 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
               setRoute={setRoute}
               activeItem={activeItem}
               component={Login}
+              refetch={refetch}
             />
           )}
         </>

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-'use-client'
+'use client'
 import React, { FC, useEffect, useState } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -13,6 +13,7 @@ import { signIn } from 'next-auth/react';
 type Props = {
     setRoute: (route: string) => void;
     setOpen: (open: boolean) => void;
+    refetch?: any;
 }
 
 const schema = Yup.object().shape({
@@ -20,7 +21,7 @@ const schema = Yup.object().shape({
     password: Yup.string().required("Please enter your password!").min(6),
 })
 
-const Login: FC<Props> = ({ setRoute, setOpen }) => {
+const Login: FC<Props> = ({ setRoute, setOpen, refetch }) => {
     const [show, setShow] = useState(false);
     const [login, {isSuccess, error}] = useLoginMutation();
 
@@ -36,6 +37,7 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
             if(isSuccess){
                 toast.success("Login successfully!");
                 setOpen(false);
+                refetch();
             }
             if(error){
                 if("data" in error){
@@ -43,7 +45,7 @@ const Login: FC<Props> = ({ setRoute, setOpen }) => {
                     toast.error(errorData.data.message);
                 }
             }
-        },[isSuccess, error, setRoute, setOpen]);
+        },[isSuccess, error, setRoute, setOpen, refetch]);
     
 
     const { errors, touched, values, handleChange, handleSubmit } = formik;
