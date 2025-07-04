@@ -28,6 +28,21 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* track  */
+::-webkit-scrollbar-track{
+  background: #1771c6;
+}
+
+/* handle  */
+::-webkit-scrollbar-thumb{
+  background: #f5f5f5b0;
+}
+
+/* handle on hover  */
+::-webkit-scrollbar-thumb:hover{
+  background: #32ae7e;
+}
+
 /* firefox */
 input[type = "number"] {
   -moz-appearance: textfield;

@@ -8,6 +8,8 @@ import { SiCoursera } from "react-icons/si";
 import { AiOutlineLogout } from "react-icons/ai";
 import Image from "next/image";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import { MdAdminPanelSettings } from "react-icons/md";
+import Link from "next/link";
 
 type Props = {
   user: any;
@@ -18,11 +20,13 @@ type Props = {
 };
 
 const SideBarProfile: React.FC<Props> = ({
+  user,
   active,
   avatar,
   setActive,
   logOutHandler,
 }) => {
+
   const { data: userData } = useLoadUserQuery(undefined, {});
 
   return (
@@ -73,9 +77,25 @@ const SideBarProfile: React.FC<Props> = ({
         </h5>
       </div>
 
+      {/* Admin Dashboard */}
+      {
+        user.role === "admin" && (
+          <Link 
+        className={`w-full flex items-center justify-start px-3 py-4 cursor-pointer ${
+          active === 6 ? "dark:bg-slate-800 bg-white" : "bg-transparent"
+        }`} href={"/admin"}
+      >
+        <MdAdminPanelSettings size={20} className="dark:text-white text-black" />
+        <h5 className="pl-2 block font-Poppins dark:text-white text-black">
+          Admin Dashboard
+        </h5>
+      </Link>
+        )
+      }
+      
       {/* Log Out */}
       <div
-        className="w-full flex items-center justify-start px-3 py-4 cursor-pointer hover:dark:bg-slate-800 hover:bg-gray-100"
+        className={`w-full flex items-center justify-start px-3 py-4 cursor-pointer ${active === 4 ? "dark: bg-white" : "bg-transparent"} hover:dark:bg-slate-800 hover:bg-gray-100`}
         onClick={logOutHandler}
       >
         <AiOutlineLogout size={20} className="dark:text-white text-black" />
