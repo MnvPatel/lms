@@ -8,6 +8,7 @@ import { Providers } from "./Provider";
 import { SessionProvider } from "next-auth/react";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { Loader } from "./components/Loader/Loader";
+import React from "react";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -47,13 +48,28 @@ export default function RootLayout({
 }
 
 
-const Custom: React.FC<{children: React.ReactNode}> = ({children}) => {
-  const {isLoading} = useLoadUserQuery({});
-  return (
-    <>
-    {
-      isLoading ? <Loader /> : <>{children} </>
-    }
-    </>
-  )
-}
+// const Custom: React.FC<{children: React.ReactNode}> = ({children}) => {
+//   const {isLoading} = useLoadUserQuery({});
+//   return (
+//     <>
+//     {
+//       isLoading ? <Loader /> : <>{children} </>
+//     }
+//     </>
+//   )
+// }
+
+const Custom: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [mounted, setMounted] = React.useState(false);
+  const { isLoading } = useLoadUserQuery(undefined, { skip: !mounted });
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted || isLoading) {
+    return <Loader />;
+  }
+
+  return <>{children}</>;
+};

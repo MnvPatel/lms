@@ -119,7 +119,7 @@ const Header: FC<Props> = ({ activeItem, setOpen, route, open, setRoute }) => {
               {userData ? (
                 <Link href={"/profile"}>
                   <Image
-                    src={userData?.user.avatar ? userData.user.avatar.url : avatar}
+                    src={userData?.user.avatar ? (userData.user.avatar.url) : avatar}
                     alt=""
                     width={30}
                     height={30}

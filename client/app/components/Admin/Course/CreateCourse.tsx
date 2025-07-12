@@ -1,16 +1,34 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CourseInformation from "./CourseInformation";
 import CourseOptions from "./CourseOptions";
 import CourseData from "./CourseData";
 import CourseContent from "./CourseContent";
 import CoursePreview from "./CoursePreview";
+import { useCreateCourseMutation } from "@/redux/features/courses/coursesApi";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 type Props = {};
 
 const CreateCourse = (props: Props) => {
+  const [createCourse, {isSuccess, error, isLoading}] = useCreateCourseMutation();
+
+  useEffect(() => {
+    if(isSuccess){
+      toast.success("Courses created successfully!")
+      redirect("/admin/all-courses");
+    }
+    if(error){
+      if("data" in error){
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+  },[isLoading, isSuccess, error])
+
   const [active, setActive] = useState(0);
   const [courseInfo, setCourseInfo] = useState({
     name: "",
@@ -88,6 +106,10 @@ const CreateCourse = (props: Props) => {
 
   const handleCourseCreate = async(e: any) => {
     const data = courseData;
+
+    if(!isLoading){
+      await createCourse(data);
+    }
   }
 
   return (

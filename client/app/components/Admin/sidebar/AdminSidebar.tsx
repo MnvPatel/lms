@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */                                                                  
+/* eslint-disable @typescript-eslint/no-unused-vars */     
+'use client'                                                             
 import React from "react";
 import { FC, useEffect, useState } from "react";
 import { ProSidebar, Menu, MenuItem } from "react-pro-sidebar";

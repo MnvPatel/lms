@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+'use client'
 import { ThemeSwitcher } from "@/app/utils/ThemeSwitcher";
 import React, { FC, useState } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
