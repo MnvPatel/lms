@@ -5,7 +5,7 @@ import cloudinary from "cloudinary";
 import { createCourse, getAllCoursesService } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import redis from "../utils/redis";
-import mongoose from "mongoose";
+import mongoose, { AnyBulkWriteOperation } from "mongoose";
 import path from "path";
 import ejs from "ejs";
 import sendMail from "../utils/sendMail";
@@ -76,9 +76,12 @@ export const editCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
+      const thumbnail = data.thumbnail;
       const courseId = req.params.id;
+      const courseData = await CourseModel.findById(courseId) as any;
 
-      if (data.thumbnail) {
+
+      if (thumbnail && !thumbnail.startsWith("https")) {
         // Delete old thumbnail
         await cloudinary.v2.uploader.destroy(data.thumbnail.public_id);
 
@@ -90,6 +93,13 @@ export const editCourse = CatchAsyncError(
         data.thumbnail = {
           public_id: myCloud.public_id,
           url: myCloud.secure_url,
+        };
+      }
+
+      if(thumbnail.startsWith("https")){
+        data.thumbnail = {
+          public_id : courseData?.thumbnail.public_id,
+          url : courseData?.thumbnail.url,
         };
       }
 

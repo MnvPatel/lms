@@ -2,21 +2,26 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box, Button } from "@mui/material";
+import { Box, Button, Modal } from "@mui/material";
 import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
 import { useTheme } from "next-themes";
-import { useGetAllCoursesQuery } from "@/redux/features/courses/coursesApi";
+import { useDeleteCoursesMutation, useGetAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 import { Loader } from "../../Loader/Loader";
 import { format } from "timeago.js";
+import { styles } from "@/app/styles/styles";
+import toast from "react-hot-toast";
+import Link from "next/link";
 
 type Props = {};
 
 const AllCourses = (props: Props) => {
   const { theme, setTheme } = useTheme();
-
-  const { isLoading, data, error } = useGetAllCoursesQuery({});
+  const [open, setOpen] = useState(false);
+  const [courseId, setCourseId] = useState("");
+  const [deleteCourse, {isSuccess, error}] = useDeleteCoursesMutation({});
+  const { isLoading, data, refetch } = useGetAllCoursesQuery({}, {refetchOnMountOrArgChange: true});
 
   const columns = [
     {
@@ -50,9 +55,9 @@ const AllCourses = (props: Props) => {
       flex: 0.2,
       renderCell: (params: any) => {
         return (
-          <Button sx={{ minWidth: "auto", padding: "8px" }}>
+          <Link href= {`/admin/edit-course/${params.row.id}`}>
             <AiOutlineEdit className="dark:text-white text-black" size={20} />
-          </Button>
+          </Link>
         );
       },
     },
@@ -62,7 +67,13 @@ const AllCourses = (props: Props) => {
       flex: 0.2,
       renderCell: (params: any) => {
         return (
-          <Button sx={{ minWidth: "auto", padding: "8px" }}>
+          <Button
+            onClick={() => {
+              setOpen(!open);
+              setCourseId(params.id);
+            }}
+            sx={{ minWidth: "auto", padding: "8px" }}
+          >
             <AiOutlineDelete className="dark:text-white text-black" size={20} />
           </Button>
         );
@@ -83,6 +94,25 @@ const AllCourses = (props: Props) => {
       });
     });
   }
+
+  useEffect(() => {
+    if(isSuccess){
+      setOpen(false);
+      refetch();
+      toast.success("Course Deleted Successfully!")
+    }
+    if(error){
+      if("data" in error){
+        const errorMessage = error as any;
+        toast.error(errorMessage.data.message);
+      }
+    }
+  }, [isSuccess, error, refetch])
+
+  const handleDelete = async () => {
+    const id = courseId;
+    await deleteCourse(id);
+  };
 
   return (
     <div className="mt-[120px]">
@@ -200,6 +230,34 @@ const AllCourses = (props: Props) => {
           >
             <DataGrid checkboxSelection rows={rows} columns={columns} />
           </Box>
+          {open && (
+            <Modal
+              open={open}
+              onClose={() => setOpen(!open)}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2 w-[450px] bg-white dark:bg-[#111C43] rounded-lg shadow-lg p-6">
+                <h1 className={`${styles.title}`}>
+                  Are you sure you want to delete this course?
+                </h1>
+                <div className="flex w-full items-center justify-between mb-6 mt-4">
+                  <div
+                    className={`${styles.button} w-[120px] h-[30px] bg-[#57c7a1]`}
+                    onClick={() => setOpen(!open)}
+                  >
+                    Cancel
+                  </div>
+                  <div
+                    className={`${styles.button} w-[120px] h-[30px] bg-[#d63f3f]`}
+                    onClick={handleDelete}
+                  >
+                    Delete
+                  </div>
+                </div>
+              </Box>
+            </Modal>
+          )}
         </Box>
       )}
     </div>
