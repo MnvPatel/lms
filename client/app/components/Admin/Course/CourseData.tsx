@@ -3,6 +3,7 @@ import { styles } from "@/app/styles/styles";
 import React, { FC } from "react";
 import { AddCircle } from "@mui/icons-material";
 import toast from "react-hot-toast";
+
 type Props = {
   benefits: { title: string }[];
   setBenefits: (benefits: { title: string }[]) => void;
@@ -21,8 +22,9 @@ const CourseData: FC<Props> = ({
   setActive,
 }) => {
   const handleBenefitChange = (index: number, value: any) => {
-    const updatedBenefits = [...benefits];
-    updatedBenefits[index].title = value;
+    const updatedBenefits = benefits.map((item, i) =>
+      i === index ? { ...item, title: value } : item
+    );
     setBenefits(updatedBenefits);
   };
 
@@ -31,8 +33,9 @@ const CourseData: FC<Props> = ({
   };
 
   const handlePrerequisitesChange = (index: number, value: any) => {
-    const updatedPrerequisites = [...prerequisites];
-    updatedPrerequisites[index].title = value;
+    const updatedPrerequisites = prerequisites.map((item, i) =>
+      i === index ? { ...item, title: value } : item
+    );
     setPrerequisites(updatedPrerequisites);
   };
 
@@ -96,7 +99,9 @@ const CourseData: FC<Props> = ({
             required
             className={`${styles.input} my-2`}
             value={prerequisite.title}
-            onChange={(e) => handlePrerequisitesChange(index, e.target.value)}
+            onChange={(e) =>
+              handlePrerequisitesChange(index, e.target.value)
+            }
           />
         ))}
         <AddCircle

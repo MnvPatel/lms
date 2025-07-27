@@ -19,6 +19,11 @@ interface ILink extends Document{
     url: string,
 }
 
+interface IThumbnail {
+  public_id: string;
+  url: string;
+}
+
 interface ICourseData extends Document{
     title: string,
     description: string,
@@ -38,7 +43,7 @@ interface ICourse extends Document{
     description: string,
     price: number,
     estimatedPrice?: number,
-    thumbnail: object,
+    thumbnail: IThumbnail,
     tags: string,
     level: string,
     demoUrl: string,
@@ -49,7 +54,6 @@ interface ICourse extends Document{
     ratings?: number,
     purchased?: number,
 }
-
 
 const reviewSchema = new Schema<IReview>({
     user: Object,

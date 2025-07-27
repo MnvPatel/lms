@@ -76,17 +76,23 @@ export const editCourse = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = req.body;
-      const thumbnail = data.thumbnail;
       const courseId = req.params.id;
-      const courseData = await CourseModel.findById(courseId) as any;
+      const thumbnail = data.thumbnail;
 
+      const courseData = await CourseModel.findById(courseId);
+      if (!courseData) {
+        return next(new ErrorHandler("Course not found", 404));
+      }
 
-      if (thumbnail && !thumbnail.startsWith("https")) {
-        // Delete old thumbnail
-        await cloudinary.v2.uploader.destroy(data.thumbnail.public_id);
+      // ==== Handle thumbnail update ====
+      if (thumbnail && typeof thumbnail === "string" && !thumbnail.startsWith("https")) {
+        // Delete old thumbnail from Cloudinary
+        if (courseData.thumbnail?.public_id) {
+          await cloudinary.v2.uploader.destroy(courseData.thumbnail.public_id);
+        }
 
         // Upload new thumbnail
-        const myCloud = await cloudinary.v2.uploader.upload(data.thumbnail, {
+        const myCloud = await cloudinary.v2.uploader.upload(thumbnail, {
           folder: "courses",
         });
 
@@ -96,36 +102,49 @@ export const editCourse = CatchAsyncError(
         };
       }
 
-      if(thumbnail.startsWith("https")){
+      // Preserve old thumbnail if the same one is used
+      if (thumbnail?.startsWith("https")) {
         data.thumbnail = {
-          public_id : courseData?.thumbnail.public_id,
-          url : courseData?.thumbnail.url,
+          public_id: courseData.thumbnail?.public_id,
+          url: courseData.thumbnail?.url,
         };
       }
 
-      // Update course with or without new thumbnail
-      const course = await CourseModel.findByIdAndUpdate(
-        courseId,
-        { $set: data },
-        { new: true }
-      );
+      // ==== Conditionally set courseData only if provided ====
+      const updatedFields: any = {
+        name: data.name,
+        description: data.description,
+        price: data.price,
+        estimatedPrice: data.estimatedPrice,
+        tags: data.tags,
+        level: data.level,
+        demoUrl: data.demoUrl,
+        thumbnail: data.thumbnail,
+        benefits: data.benefits,
+        prerequisites: data.prerequisites,
+      };
 
-      if (!course) {
-        return next(new ErrorHandler("Course not found", 404));
+      if (data.courseData) {
+        updatedFields.courseData = data.courseData;
       }
 
-      await redis.del(courseId);
-      await redis.del("allCourses");
+      courseData.set(updatedFields);
+      await courseData.save();
+
+      // Optional: Redis cache clear
+      // await redis.del(courseId);
+      // await redis.del("allCourses");
 
       res.status(200).json({
         success: true,
-        course,
+        course: courseData,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
+
 
 
 //get single course --- without purchasing

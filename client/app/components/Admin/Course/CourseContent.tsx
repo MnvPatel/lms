@@ -38,24 +38,35 @@ const CourseContent: FC<Props> = ({
   };
 
   const handleRemoveLink = (index: number, linkIndex: number) => {
-    const updateData = [...courseContentData];
-    updateData[index].links.splice(linkIndex, 1);
-    setCourseContentData(updateData);
+    const updatedData = [...courseContentData];
+    const newLinks = updatedData[index].links.filter(
+      (_: any, i: number) => i !== linkIndex
+    );
+    updatedData[index] = {
+      ...updatedData[index],
+      links: newLinks,
+    };
+    setCourseContentData(updatedData);
   };
 
   const handleAddink = (index: number) => {
-    const updateData = [...courseContentData];
-    updateData[index].links.push({ title: "", url: "" });
-    setCourseContentData(updateData);
+    const updatedData = [...courseContentData];
+    const newLinks = [...updatedData[index].links, { title: "", url: "" }];
+    updatedData[index] = {
+      ...updatedData[index],
+      links: newLinks,
+    };
+    setCourseContentData(updatedData);
   };
 
   const addNewSection = () => {
+    const last = courseContentData[courseContentData.length - 1];
     if (
-      courseContentData[courseContentData.length - 1].title === "" ||
-      courseContentData[courseContentData.length - 1].description === "" ||
-      courseContentData[courseContentData.length - 1].videoUrl === "" ||
-      courseContentData[courseContentData.length - 1].links[0].title === "" ||
-      courseContentData[courseContentData.length - 1].links[0].url === ""
+      last.title === "" ||
+      last.description === "" ||
+      last.videoUrl === "" ||
+      last.links[0].title === "" ||
+      last.links[0].url === ""
     ) {
       toast.error("Please fill all the fields first!");
     } else {
@@ -86,10 +97,7 @@ const CourseContent: FC<Props> = ({
       if (courseContentData.length > 0) {
         const lastVideoSection =
           courseContentData[courseContentData.length - 1].videoSection;
-        // use the last videoSection if available, else use empty string
-        if (lastVideoSection) {
-          newVideoSection = lastVideoSection;
-        }
+        newVideoSection = lastVideoSection || "";
       }
 
       const newContent = {
@@ -109,12 +117,13 @@ const CourseContent: FC<Props> = ({
   };
 
   const handleOptions = () => {
+    const last = courseContentData[courseContentData.length - 1];
     if (
-      courseContentData[courseContentData.length - 1].title === "" ||
-      courseContentData[courseContentData.length - 1].description === "" ||
-      courseContentData[courseContentData.length - 1].videoUrl === "" ||
-      courseContentData[courseContentData.length - 1].links[0].title === "" ||
-      courseContentData[courseContentData.length - 1].links[0].url === ""
+      last.title === "" ||
+      last.description === "" ||
+      last.videoUrl === "" ||
+      last.links[0].title === "" ||
+      last.links[0].url === ""
     ) {
       toast.error("Please fill all the fields first!");
     } else {
@@ -151,7 +160,10 @@ const CourseContent: FC<Props> = ({
                       value={item.videoSection}
                       onChange={(e) => {
                         const updatedData = [...courseContentData];
-                        updatedData[index].videoSection = e.target.value;
+                        updatedData[index] = {
+                          ...updatedData[index],
+                          videoSection: e.target.value,
+                        };
                         setCourseContentData(updatedData);
                       }}
                     />
@@ -172,7 +184,6 @@ const CourseContent: FC<Props> = ({
                 ) : (
                   <div></div>
                 )}
-                {/* Arrow button for collapsed video content */}
                 <div className="flex items-center">
                   <AiOutlineDelete
                     className={`dark:text-white text-[20px] mr-2 text-black ${
@@ -186,7 +197,6 @@ const CourseContent: FC<Props> = ({
                       }
                     }}
                   />
-
                   <MdOutlineKeyboardArrowDown
                     fontSize="large"
                     className="dark:text-white text-black"
@@ -211,7 +221,10 @@ const CourseContent: FC<Props> = ({
                       value={item.title}
                       onChange={(e) => {
                         const updatedData = [...courseContentData];
-                        updatedData[index].title = e.target.value;
+                        updatedData[index] = {
+                          ...updatedData[index],
+                          title: e.target.value,
+                        };
                         setCourseContentData(updatedData);
                       }}
                     />
@@ -225,7 +238,10 @@ const CourseContent: FC<Props> = ({
                       value={item.videoUrl}
                       onChange={(e) => {
                         const updatedData = [...courseContentData];
-                        updatedData[index].videoUrl = e.target.value;
+                        updatedData[index] = {
+                          ...updatedData[index],
+                          videoUrl: e.target.value,
+                        };
                         setCourseContentData(updatedData);
                       }}
                     />
@@ -240,7 +256,10 @@ const CourseContent: FC<Props> = ({
                       value={item.description}
                       onChange={(e) => {
                         const updatedData = [...courseContentData];
-                        updatedData[index].description = e.target.value;
+                        updatedData[index] = {
+                          ...updatedData[index],
+                          description: e.target.value,
+                        };
                         setCourseContentData(updatedData);
                       }}
                     />
@@ -271,9 +290,17 @@ const CourseContent: FC<Props> = ({
                         className={`${styles.input}`}
                         value={link.title}
                         onChange={(e) => {
+                          const updatedLinks = item.links.map(
+                            (l: any, i: number) =>
+                              i === linkIndex
+                                ? { ...l, title: e.target.value }
+                                : l
+                          );
                           const updatedData = [...courseContentData];
-                          updatedData[index].links[linkIndex].title =
-                            e.target.value;
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            links: updatedLinks,
+                          };
                           setCourseContentData(updatedData);
                         }}
                       />
@@ -283,16 +310,23 @@ const CourseContent: FC<Props> = ({
                         className={`${styles.input} mt-6`}
                         value={link.url}
                         onChange={(e) => {
+                          const updatedLinks = item.links.map(
+                            (l: any, i: number) =>
+                              i === linkIndex
+                                ? { ...l, url: e.target.value }
+                                : l
+                          );
                           const updatedData = [...courseContentData];
-                          updatedData[index].links[linkIndex].url =
-                            e.target.value;
+                          updatedData[index] = {
+                            ...updatedData[index],
+                            links: updatedLinks,
+                          };
                           setCourseContentData(updatedData);
                         }}
                       />
                     </div>
                   ))}
                   <br />
-                  {/* {addd link} */}
                   <div className="inline-block mb-4">
                     <p
                       className="flex items-center text-[18px] dark:text-white text-black cursor-pointer"
@@ -305,7 +339,6 @@ const CourseContent: FC<Props> = ({
                 </>
               )}
               <br />
-              {/* add new content */}
               {index === courseContentData.length - 1 && (
                 <div>
                   <p
