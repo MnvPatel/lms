@@ -247,6 +247,23 @@ const CourseContent: FC<Props> = ({
                     />
                   </div>
                   <div className="my-3">
+                    <label className={styles.label}>Video Length</label>
+                    <input
+                      type="number"
+                      placeholder="Project Plan..."
+                      className={`${styles.input}`}
+                      value={item.videoLength}
+                      onChange={(e) => {
+                        const updatedData = [...courseContentData];
+                        updatedData[index] = {
+                          ...updatedData[index],
+                          videoUrl: e.target.value,
+                        };
+                        setCourseContentData(updatedData);
+                      }}
+                    />
+                  </div>
+                  <div className="my-3">
                     <label className={styles.label}>Description</label>
                     <textarea
                       rows={10}

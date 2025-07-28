@@ -2,7 +2,8 @@
 /* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { styles } from "@/app/styles/styles";
-import React, { FC, useState } from "react";
+import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
+import React, { FC, useEffect, useState } from "react";
 
 type Props = {
   courseInfo: any;
@@ -18,6 +19,14 @@ const CourseInformation: FC<Props> = ({
   setActive,
 }) => {
   const [dragging, setDragging] = useState(false);
+  const { data } = useGetHeroDataQuery("Categories");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if(data) {
+      setCategories(data.layout.categories);
+    }
+  },[data])
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -137,7 +146,8 @@ const CourseInformation: FC<Props> = ({
           </div>
         </div>
         <br />
-        <div>
+        <div className="w-full flex justify-between">
+          <div>
           <label className={`${styles.label}`} htmlFor="tags">
             Course Tags
           </label>
@@ -156,6 +166,20 @@ const CourseInformation: FC<Props> = ({
             placeholder="MERN,Next 13,Socket io,tailwind css,LMS"
             className={`${styles.input}`}
           />
+        </div>
+          <div className="w-[50%]">
+            <label className={`${styles.label} w-[50%]`}>Course Categories</label>
+            <select name="" id="" className={`${styles.input}`} value={courseInfo.categories} onChange={(e: any) => setCourseInfo({ ...courseInfo, category: e.target.value})}>
+              <option value="">Select Category</option>
+              {
+                categories.map((item: any) => (
+                  <option value={item._id} key={item._id}>
+                    {item.title}
+                  </option>
+                ))
+              }
+            </select>
+          </div>
         </div>
         <br />
         <div className="w-full flex justify-between">
