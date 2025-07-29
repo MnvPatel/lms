@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import { styles } from "@/app/styles/styles";
 import { useGetOrderAnalyticsQuery } from "@/redux/features/analytics/analyticsApi";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   LineChart,
   Line,
@@ -16,7 +16,16 @@ import {
 } from "recharts";
 import { Loader } from "../../Loader/Loader";
 
-// const data = [
+
+
+type Props = {
+  isDashboard?: boolean;
+};
+
+const OrderAnalytics = ({ isDashboard }: Props) => {
+  const {data, isLoading } = useGetOrderAnalyticsQuery({});
+
+//   const analyticsData = [
 //   {
 //     name: "Page A",
 //     count: 4000,
@@ -46,13 +55,6 @@ import { Loader } from "../../Loader/Loader";
 //     count: 200,
 //   },
 // ];
-
-type Props = {
-  isDashboard?: boolean;
-};
-
-const OrderAnalytics = ({ isDashboard }: Props) => {
-  const { data, isLoading } = useGetOrderAnalyticsQuery({});
 
   const analyticsData: any = [];
 
@@ -109,7 +111,7 @@ const OrderAnalytics = ({ isDashboard }: Props) => {
                 <YAxis />
                 <Tooltip />
                 {!isDashboard && <Legend />}
-                <Line type="monotone" dataKey="Count" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="count" stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -1,14 +1,16 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 import { ThemeSwitcher } from "@/app/utils/ThemeSwitcher";
-import React, { FC, useState } from "react";
+import React, { FC } from "react";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { useTheme } from "next-themes";
 
-type Props = {};
+type Props = {
+  open?: boolean,
+  setOpen?: any,
+};
 
-const DashboardHeader: FC<Props> = () => {
-  const [open, setOpen] = useState(false);
+const DashboardHeader: FC<Props> = ({open, setOpen}) => {
   const { theme } = useTheme();
 
   return (

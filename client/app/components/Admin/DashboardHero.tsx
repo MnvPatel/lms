@@ -1,14 +1,22 @@
-/* eslint-disable @typescript-eslint/no-empty-object-type */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React from 'react'
+"use client"
+import React, { useState } from 'react'
 import DashboardHeader from './DashboardHeader'
+import DashboardWidgets from './Widgets/DashboardWidgets'
 
-type Props = {}
+type Props = {
+  isDashboard?: boolean
+}
 
-const DashboardHero = (props: Props) => {
+const DashboardHero = ({isDashboard}:Props) => {
+  const [open, setOpen] = useState(false);
   return (
     <div>
-      <DashboardHeader/>
+      <DashboardHeader open={open} setOpen={setOpen}/>
+      {
+        isDashboard && (
+          <DashboardWidgets open={open} />
+        )
+      }
     </div>
   )
 }
