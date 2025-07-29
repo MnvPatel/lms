@@ -7,7 +7,7 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   // Make sure darkMode is set to 'class'
-  darkMode: 'class',    
+  darkMode: 'class',
   theme: {
     extend: {
       fontFamily: {
