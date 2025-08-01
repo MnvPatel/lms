@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { styles } from "@/app/styles/styles";
 import { useGetHeroDataQuery } from "@/redux/features/layout/layoutApi";
 import React, { useEffect, useState } from "react";

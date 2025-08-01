@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import CourseDetailPage from '@/app/components/Course/CourseDetailPage'
 import React from 'react'
 
-type Props = {}
 
-const page = (props: Props) => {
+const page = ({params}: any) => {
   return (
-    <div>page</div>
+    <div>
+        <CourseDetailPage id={params.id} />
+    </div>
   )
 }
 
