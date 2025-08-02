@@ -1,10 +1,13 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader } from "../Loader/Loader";
 import Footer from "../Footer";
 import Header from "../Header";
 import Heading from "@/app/utils/Heading";
 import CourseDetails from "./CourseDetails";
+import { useCreatePaymentIntentMutation, useGetStripePublishableKeyQuery } from "@/redux/features/orders/ordersApi";
+import {loadStripe } from '@stripe/stripe-js';
 
 type Props = {
   id: string;
@@ -14,7 +17,28 @@ const CourseDetailPage = ({ id }: Props) => {
   const [route, setRoute] = useState("Login");
   const [open, setOpen] = useState(false);
   const { data, isLoading } = useGetCourseDetailsQuery(id);
+  const {data: config } = useGetStripePublishableKeyQuery({});
+  const [createPaymentIntent, {data: paymentIntentData}] = useCreatePaymentIntentMutation();
+  const [stripePromise, setStripePromise] = useState<any>(null);
+  const [clientSecret, setClientSecret] = useState('');
 
+  useEffect(() => {
+    if(config){
+      const publishablekey = config?.publishableKey;
+      setStripePromise(loadStripe(publishablekey));
+    }
+    if(data){
+      const amount = Math.round(data.course.price * 100);
+      createPaymentIntent(amount);
+    }
+  },[config, data, createPaymentIntent])
+
+  useEffect(() => {
+    if(paymentIntentData){
+      setClientSecret(paymentIntentData?.client_secret);
+    }
+  },[paymentIntentData])
+  
   return (
     <>
       {isLoading ? (
@@ -35,7 +59,11 @@ const CourseDetailPage = ({ id }: Props) => {
             setOpen={setOpen}
             activeItem={1}
           />
-          <CourseDetails data={data.course} />
+          {
+            stripePromise && (
+              <CourseDetails data={data.course} stripePromise={stripePromise} clientSecret={clientSecret} />
+            )
+          }
           <Footer />
         </div>
       )}
