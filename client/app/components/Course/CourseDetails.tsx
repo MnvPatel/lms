@@ -9,20 +9,22 @@ import { IoCheckmarkDoneOutline, IoCloseOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { format } from "timeago.js";
 import CourseContentList from "./CourseContentList";
-import {Elements} from '@stripe/react-stripe-js';
+import { Elements } from "@stripe/react-stripe-js";
 import CheckOutForm from "../Payment/CheckOutForm";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
+import Image from "next/image";
+import { VscVerifiedFilled } from "react-icons/vsc";
 
 type Props = {
   data: any;
-  stripePromise : any;
+  stripePromise: any;
   clientSecret: string;
 };
 
 const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
-  const {data: userData} = useLoadUserQuery(undefined, {});
+  const { data: userData } = useLoadUserQuery(undefined, {});
   const user = userData?.user;
-  
+
   const [open, setOpen] = useState(false);
 
   const discountPercentage = data?.estimatedPrice
@@ -136,11 +138,17 @@ const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
                   <div className="w-full pb-4" key={index}>
                     <div className="flex">
                       <div className="w-[50px] h-[50px]">
-                        <div className="w-[50px] h-[50px] bg-slate-600 rounded-[50px] flex items-center justify-center cursor-pointer">
-                          <h1 className="uppercase text-[18px] text-black dark:text-white">
-                            {item.user.name.slice(0, 2)}
-                          </h1>
-                        </div>
+                        <Image
+                          src={
+                            item.user.avatar
+                              ? item.user.avatar.url
+                              : "https://res.cloudinary.com/dshp9jmy/image/upload/v1665822253/avatars/nrxsg8sd91y1bbsoenn.png"
+                          }
+                          width={50}
+                          height={50}
+                          alt="User Avatar"
+                          className="w-[50px] h-[50px] rounded-full object-cover"
+                        />
                       </div>
                       <div className="hidden 800px:block pl-2">
                         <div className="flex items-center">
@@ -163,6 +171,37 @@ const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
                         <Ratings rating={item.rating} />
                       </div>
                     </div>
+                    {item.commentReplies?.map((i: any, index: number) => (
+                      <div className="w-full flex 800px:ml-16 my-5" key={index}>
+                        <div className="w-[50px] h-[50px]">
+                          <Image
+                            src={
+                              i.user.avatar
+                                ? i.user.avatar.url
+                                : "https://res.cloudinary.com/dshp9jmy/image/upload/v1665822253/avatars/nrxsg8sd91y1bbsoenn.png"
+                            }
+                            width={50}
+                            height={50}
+                            alt="User Avatar"
+                            className="w-[50px] h-[50px] rounded-full object-cover"
+                          />
+                        </div>
+                        <div className="pl-2">
+                          <div className="flex items-center">
+                            <h5 className="text-[20px]">{item.user.name}</h5>{" "}
+                            {item.user.role === "admin" && (
+                              <VscVerifiedFilled className="text-[#0095F6] ml-2 text-[20px]" />
+                            )}
+                          </div>
+                          <p className="text-black dark:text-white">
+                            {i.comment}
+                          </p>
+                          <small className="text-[#ffffff83] dark:text-[#ffffff83]">
+                            {format(i.createdAt)} •
+                          </small>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )
               )}
@@ -217,33 +256,29 @@ const CourseDetails = ({ data, stripePromise, clientSecret }: Props) => {
         </div>
       </div>
       <>
-      {
-        open && (
+        {open && (
           <div className="w-full h-screen bg-[#00000036] fixed top-0 left-0 z-50 flex items-center justify-center">
-          <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3 dark:bg-gray-800">
-            <div className="w-full flex justify-end">
-              <IoCloseOutline
-                size={40}
-                className="text-black dark:text-white cursor-pointer"
-                onClick={() => setOpen(false)}
-              />
-            </div>
-            <div className="w-full">
-              {
-                stripePromise && clientSecret && (
-                  <Elements stripe={stripePromise} options={{clientSecret}}>
+            <div className="w-[500px] min-h-[500px] bg-white rounded-xl shadow p-3 dark:bg-gray-800">
+              <div className="w-full flex justify-end">
+                <IoCloseOutline
+                  size={40}
+                  className="text-black dark:text-white cursor-pointer"
+                  onClick={() => setOpen(false)}
+                />
+              </div>
+              <div className="w-full">
+                {stripePromise && clientSecret && (
+                  <Elements stripe={stripePromise} options={{ clientSecret }}>
                     <CheckOutForm setOpen={setOpen} data={data} />
                   </Elements>
-                )
-              }
+                )}
+              </div>
             </div>
-          </div>  
-        </div>
-        )
-      }
+          </div>
+        )}
       </>
     </div>
-  );                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+  );
 };
 
 export default CourseDetails;
