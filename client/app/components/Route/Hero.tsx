@@ -1,17 +1,35 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import { useGetHeroDataQuery } from '@/redux/features/layout/layoutApi'
 import Image from 'next/image'
 import Link from 'next/link'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { BiSearch } from 'react-icons/bi'
+import { Loader } from '../Loader/Loader'
+import { useRouter } from 'next/router'
 
 type Props = {}
 
 const Hero: FC<Props> = (props) => {
-  const { data } = useGetHeroDataQuery("Banner");
+  const { data, isLoading } = useGetHeroDataQuery("Banner",{});
+  const [search, setSearch] = useState();
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if(search === ""){
+      return;
+    } else {
+      router.push(`/courses?title=${search}`);
+    }
+  }
   return (
-    <div className='w-full min-h-screen flex items-center justify-center relative overflow-hidden'>
+    <>
+    {
+      isLoading ? (
+        <Loader />
+      ) : (
+        <div className='w-full min-h-screen flex items-center justify-center relative overflow-hidden'>
       {/* Hero Animation Background Circle */}
       <div className='absolute top-[100px] 1000px:top-[50%] 1000px:left-[10%] 1000px:-translate-y-1/2 1500px:h-[700px] 1500px:w-[700px] 1100px:h-[600px] 1100px:w-[600px] h-[50vh] w-[50vh] hero_animation rounded-full'></div>
       
@@ -45,9 +63,11 @@ const Hero: FC<Props> = (props) => {
             <input 
               type='search' 
               placeholder='Search Courses...' 
+              value={search}
+              onChange={(e : any) => setSearch(e.target.value)}
               className='bg-white dark:bg-[#575757] border border-gray-300 dark:border-none text-[#0000004e] dark:text-[#ffffffe6] dark:placeholder:text-[#ffffffdd] rounded-[5px] p-2 w-full h-full outline-none text-[18px] 1000px:text-[20px] font-[500] font-Josefin focus:border-blue-400 dark:focus:ring-2 dark:focus:ring-blue-500'
             />
-            <button className='absolute flex items-center justify-center w-[50px] cursor-pointer h-[50px] right-0 top-0 bg-[#39c1f3] hover:bg-[#2ba5d4] rounded-r-[5px] transition-colors'>
+            <button className='absolute flex items-center justify-center w-[50px] cursor-pointer h-[50px] right-0 top-0 bg-[#39c1f3] hover:bg-[#2ba5d4] rounded-r-[5px] transition-colors' onClick={handleSearch}>
               <BiSearch className='text-white' size={30} />
             </button>
           </div>
@@ -70,6 +90,9 @@ const Hero: FC<Props> = (props) => {
         
       </div>
     </div>
+      )
+    }
+    </>
   )
 }
 
