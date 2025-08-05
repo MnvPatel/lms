@@ -89,7 +89,6 @@ useEffect(() => {
 
       <button disabled={isLoading || !stripe || !elements} id="submit">
         <span id="button-text" className={`${styles.button} mt-2 !h-[35px]`}>
-          {" "}
           {isLoading ? "Paying..." : "Pay now"}
         </span>
       </button>

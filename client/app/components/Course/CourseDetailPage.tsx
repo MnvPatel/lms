@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
 import { useGetCourseDetailsQuery } from "@/redux/features/courses/coursesApi";
 import React, { useEffect, useState } from "react";
 import { Loader } from "../Loader/Loader";
@@ -24,7 +25,7 @@ const CourseDetailPage = ({ id }: Props) => {
 
   useEffect(() => {
     if(config){
-      const publishablekey = config?.publishableKey;
+      const publishablekey = config?.publishablekey;
       setStripePromise(loadStripe(publishablekey));
     }
     if(data){

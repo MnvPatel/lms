@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-empty-object-type */
+'use client'
 import { useGetHeroDataQuery } from '@/redux/features/layout/layoutApi'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { FC, useState } from 'react'
 import { BiSearch } from 'react-icons/bi'
 import { Loader } from '../Loader/Loader'
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 
 type Props = {}
 

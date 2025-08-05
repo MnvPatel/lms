@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable react-hooks/exhaustive-deps */
+
 'use client'
 import CourseContent from '@/app/components/Course/CourseContent';
+import { Loader } from '@/app/components/Loader/Loader';
 import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
 import { redirect } from 'next/navigation';
 import React, { useEffect } from 'react'
@@ -26,7 +27,7 @@ const page = ({params}: Props) => {
                 redirect("/");
             }
         }
-    },[data, error])
+    },[data, error, id])
   return (
     <>
     {
@@ -43,3 +44,29 @@ const page = ({params}: Props) => {
 }
 
 export default page
+
+// 'use client'
+
+// import CourseContent from '@/app/components/Course/CourseContent';
+// import { Loader } from '@/app/components/Loader/Loader';
+// import { useLoadUserQuery } from '@/redux/features/api/apiSlice';
+// import React from 'react';
+
+// const Page = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
+//   const params = React.use(paramsPromise); // ✅ Unwrap the params
+//   const { isLoading, data } = useLoadUserQuery(undefined, {});
+
+//   return (
+//     <>
+//       {isLoading ? (
+//         <Loader />
+//       ) : (
+//         <div>
+//           <CourseContent id={params.id} user={data.user} />
+//         </div>
+//       )}
+//     </>
+//   );
+// };
+
+// export default Page;
