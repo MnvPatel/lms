@@ -8,7 +8,10 @@ import { Providers } from "./Provider";
 import { SessionProvider } from "next-auth/react";
 import { useLoadUserQuery } from "@/redux/features/api/apiSlice";
 import { Loader } from "./components/Loader/Loader";
-import React from "react";
+import React, { useEffect } from "react";
+import socketIO from 'socket.io-client';
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || '';
+const socketId = socketIO(ENDPOINT, { transports : ["websockets"] });
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -66,6 +69,10 @@ const Custom: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    socketId.on("connection", () => {});
+  },[])
 
   if (!mounted || isLoading) {
     return <Loader />;
