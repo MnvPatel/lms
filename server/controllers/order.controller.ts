@@ -3,11 +3,13 @@ import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import { IOrder } from "../models/order.model";
 import userModel from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
-import CourseModel from "../models/course.model";
+import CourseModel, { ICourse } from "../models/course.model";
 import { getAllOrdersService, newOrder } from "../services/order.service";
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notification.model";
 import redis from "../utils/redis";
+import path from "path";
+import ejs from 'ejs';
 require("dotenv").config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -48,7 +50,7 @@ export const createOrder = CatchAsyncError(
         );
       }
 
-      const course = await CourseModel.findById(courseId);
+      const course : ICourse | null = await CourseModel.findById(courseId);
 
       if (!course) {
         return next(new ErrorHandler("Course not found", 400));
@@ -73,6 +75,10 @@ export const createOrder = CatchAsyncError(
         },
       };
 
+      const html = await ejs.renderFile(
+        path.join(__dirname, "../mails/order-confirmation.ejs"),
+        { order: mailData}
+      )
       try {
         if (user) {
           await sendMail({
@@ -103,7 +109,7 @@ export const createOrder = CatchAsyncError(
       });
 
       // increment purchase count
-      course.purchased = (course.purchased || 0) + 1;
+      course.purchased = course.purchased + 1;
 
       await course.save();
 

@@ -23,6 +23,10 @@ import {
 import { BiMessage } from "react-icons/bi";
 import { VscVerifiedFilled } from "react-icons/vsc";
 import Ratings from "@/app/utils/Ratings";
+import socketIO from 'socket.io-client';
+import { IoTennisball } from "react-icons/io5";
+const ENDPOINT = process.env.NEXT_PUBLIC_SOCKET_SERVER_URI || '';
+const socketId = socketIO(ENDPOINT, { transports : ["websockets"] });
 
 type Props = {
   data: any;
@@ -111,17 +115,34 @@ const CourseContentMedia = ({
       setQuestion("");
       refetch();
       toast.success("Question added successfully!");
+      socketId.emit("notification", {
+          title: "New Question Receivedr",
+          message: `You have a new question in ${data[activeVideo].title}`,
+          userId: user._id,
+        })
     }
     if (answerSuccess) {
       setAnswer("");
       refetch();
       toast.success("Answer added successfully!");
+      if(user.role !== 'admin'){
+        socketId.emit("notification", {
+          title: "New Rep;y Receivedr",
+          message: `You have a new question reply in ${data[activeVideo].title}`,
+          userId: user._id,
+        })
+      }
     }
     if (reviewSuccess) {
       setReview("");
       setRating(1);
       courseRefetch();
       toast.success("Review added successfully!");
+      socketId.emit("notification", {
+          title: "New Review Receivedr",
+          message: `You have a new review in ${data[activeVideo].title}`,
+          userId: user._id,
+        })
     }
     if (replySuccess) {
       setReply("");
@@ -152,18 +173,7 @@ const CourseContentMedia = ({
         toast.error(errorMessage.data.message);
       }
     }
-  }, [
-    isSuccess,
-    error,
-    refetch,
-    courseRefetch,
-    answerSuccess,
-    answerError,
-    reviewSuccess,
-    reviewError,
-    replySuccess,
-    replyError,
-  ]);
+  }, [isSuccess, error, refetch, courseRefetch, answerSuccess, answerError, reviewSuccess, reviewError, replySuccess, replyError, data, activeVideo, user._id, user.role]);
 
   const handleAnswerSubmit = () => {
     addAnswer({
@@ -326,6 +336,7 @@ const CourseContentMedia = ({
               setAnswer={setAnswer}
               handleAnswerSubmit={handleAnswerSubmit}
               user={user}
+              questionId={questionId}
               setQuestionId={setQuestionId}
               answerCreationLoading={answerCreationLoading}
             />
@@ -437,7 +448,7 @@ const CourseContentMedia = ({
                           </small>
                         </div>
                       </div>
-                      {user.role === "admin" && (
+                      {user.role === "admin" && item.commentReplies.length === 0 && (
                         <span
                           className={`${styles.label} !ml-13 cursor-pointer`}
                           onClick={() => {
@@ -448,7 +459,7 @@ const CourseContentMedia = ({
                           Add Reply{" "}
                         </span>
                       )}
-                      {isReviewReply && (
+                      {isReviewReply && reviewId === item._id && (
                         <div className="w-full flex relative">
                           <input
                             type="text"
@@ -517,6 +528,7 @@ const CommentReply = ({
   answer,
   setAnswer,
   user,
+  questionId,
   setQuestionId,
   handleAnswerSubmit,
   answerCreationLoading,
@@ -529,6 +541,7 @@ const CommentReply = ({
             key={index}
             data={data}
             activeVideo={activeVideo}
+            questionId={questionId}
             setQuestionId={setQuestionId}
             item={item}
             index={index}
@@ -546,6 +559,7 @@ const CommentReply = ({
 const CommentItem = ({
   data,
   activeVideo,
+  questionId,
   setQuestionId,
   item,
   answer,
@@ -603,7 +617,7 @@ const CommentItem = ({
           {item.questionReplies.length}
         </span>
       </div>
-      {replyActive && (
+      {replyActive && questionId === item._id && (
         <>
           {item.questionReplies.map((item: any) => (
             <div className="w-full flex 800px:ml-16 my-5 text-black dark:text-white">
