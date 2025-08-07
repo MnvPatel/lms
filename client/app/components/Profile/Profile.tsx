@@ -1,13 +1,16 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // /* eslint-disable @typescript-eslint/no-empty-object-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-'use client'
-import React, { FC, useEffect, useState } from 'react'
-import SideBarProfile from './SideBarProfile'
-import { useLogOutQuery } from '@/redux/features/auth/authApi'
-import { signOut } from 'next-auth/react'
-import ProfileInfo from './ProfileInfo'
-import ChangePassword from './ChangePassword'
+"use client";
+import React, { FC, useEffect, useState } from "react";
+import SideBarProfile from "./SideBarProfile";
+import { useLogOutQuery } from "@/redux/features/auth/authApi";
+import { signOut } from "next-auth/react";
+import ProfileInfo from "./ProfileInfo";
+import ChangePassword from "./ChangePassword";
+import CourseCard from "../Course/CourseCard";
+import { useGetUsersAllCoursesQuery } from "@/redux/features/courses/coursesApi";
 
 type Props = {
   user: any;
@@ -18,9 +21,11 @@ const Profile: FC<Props> = ({ user }) => {
   const [avatar, setAvatar] = useState<string | null>(null);
   const [active, setActive] = useState(1);
   const [logout, setLogout] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const { data, isLoading } = useGetUsersAllCoursesQuery(undefined, {});
 
   const {} = useLogOutQuery(undefined, {
-    skip: !logout,
+    skip: !logout ? true : false,
   });
 
   const logOutHandler = async () => {
@@ -28,10 +33,21 @@ const Profile: FC<Props> = ({ user }) => {
       await signOut();
       setLogout(true);
     } catch (err) {
-       // add anything to handle error
+      // add anything to handle error
       console.error("Error during logout:", err);
     }
   };
+
+  useEffect(() => {
+    if (data && user?.courses) {
+      const filteredCourses = user.courses
+        .map((userCourse: any) =>
+          data.courses.find((courses: any) => courses._id === userCourse._id)
+        )
+        .filter((course: any) => course !== undefined);
+      setCourses(filteredCourses);
+    }
+  }, [data, user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,20 +73,31 @@ const Profile: FC<Props> = ({ user }) => {
           logOutHandler={logOutHandler}
         />
       </div>
-      {
-        active === 1  && (
-          <div className='w-full h-full bg-transparent mt-[80px]'> 
-            <ProfileInfo avatar={avatar} user={user}/>
+      {active === 1 && (
+        <div className="w-full h-full bg-transparent mt-[80px]">
+          <ProfileInfo avatar={avatar} user={user} />
+        </div>
+      )}
+      {active === 2 && (
+        <div className="w-full h-full bg-transparent mt-[80px]">
+          <ChangePassword />
+        </div>
+      )}
+      {active === 3 && (
+        <div className="w-full pl-7 px-2 800px:px-10 800px:pl-8">
+          <div className="grid grid-cols-1 gap-[20px] md:grid-cols-2 md:gap-[25px] lg:grid-cols-3 1500px:grid-cols-4 1500px:gap-[35px] mb-12 border-0">
+            {courses &&
+              courses.map((item: any, index: number) => (
+                <CourseCard item={item} key={index} />
+              ))}
           </div>
-        )
-      }
-      {
-        active === 2  && (
-          <div className='w-full h-full bg-transparent mt-[80px]'> 
-            <ChangePassword />
-          </div>
-        )
-      }
+          {courses.length === 0 && (
+            <h1 className="text-center text-[18px] font-Poppins">
+              You don't have any purchased course
+            </h1>
+          )}
+        </div>
+      )}
     </div>
   );
 };
